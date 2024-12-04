@@ -1,24 +1,10 @@
 import LoadingTabelContent from "@/components/loading-tabel-content";
-import { axiosInstance } from "@/config/libs/axios"
+import { useGetProduct } from "@/features/products/useGetProduct";
 import { Container, Heading, Table } from "@chakra-ui/react"
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchProducts = async () => {
-    setIsLoading(true)
-    try {
-      setTimeout(async () => {
-        const { data } = await axiosInstance.get("/products")
-        setProducts(data)
-        setIsLoading(false)
-
-      }, 3000);
-    } catch (e) {
-    }
-  }
+  const { data: products, isLoading } = useGetProduct();
 
   const renderProducts = () => {
     return products.map((product, index) => (
@@ -32,9 +18,7 @@ export default function Home() {
     ))
   }
 
-  useEffect(() => {
-    fetchProducts()
-  }, [])
+
 
   return (
     <>
