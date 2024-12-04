@@ -1,40 +1,23 @@
 import LoadingTabelContent from "@/components/loading-tabel-content";
-import { axiosInstance } from "@/config/libs/axios"
+import { useGetProduct } from "@/features/product/useProduct";
 import { Container, Heading, Table } from "@chakra-ui/react"
-import { useEffect, useState } from "react";
+
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchProducts = async () => {
-    setIsLoading(true)
-    try {
-      setTimeout(async () => {
-        const { data } = await axiosInstance.get("/products")
-        setProducts(data)
-        setIsLoading(false)
-
-      }, 3000);
-    } catch (e) {
-    }
-  }
+  
+  const { data: product, isLoading } = useGetProduct()
 
   const renderProducts = () => {
-    return products.map((product, index) => (
-      <Table.Row key={`${product.id - index}`}>
+    return product.data?.map((product, index) => (
+      <Table.Row key={`${product.id}`}>
         <Table.Cell>{index + 1}</Table.Cell>
-        <Table.Cell>{product.title}</Table.Cell>
+        <Table.Cell>{product.name}</Table.Cell>
         <Table.Cell>{product.price}</Table.Cell>
         <Table.Cell>{product.description}</Table.Cell>
         <Table.Cell>{product.image}</Table.Cell>
       </Table.Row>
     ))
   }
-
-  useEffect(() => {
-    fetchProducts()
-  }, [])
 
   return (
     <>
