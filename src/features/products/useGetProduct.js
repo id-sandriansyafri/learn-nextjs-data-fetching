@@ -25,7 +25,8 @@ export const useGetProduct = () => {
 
   return {
     data: products,
-    isLoading,
+    fetchProducts,
+    isLoading
   }
 
 }

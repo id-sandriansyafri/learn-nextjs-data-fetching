@@ -1,54 +1,48 @@
 "use client"
 
 import LoadingTabelContent from "@/components/loading-tabel-content";
-import { useGetProduct } from "@/features/product/useProduct";
 import { Container, Heading, Table, Textarea, useToast } from "@chakra-ui/react"
 import { Button, Fieldset, Input, Stack } from "@chakra-ui/react"
 import { Field } from "@/components/ui/field"
 import { Card } from "@chakra-ui/react"
 import { useFormik } from "formik";
-import { axiosInstance } from "@/config/libs/axios";
 import { toaster } from "@/components/ui/toaster"
+import { useCreateProduct } from "@/features/products/useCreateProduct";
+import { useGetProduct } from "@/features/products/useGetProduct";
 
 export default function Home() {
-  const { data: product, isLoading } = useGetProduct()
+  const { data: products, fetchProducts, isLoading } = useGetProduct()
+  const { createProduct } = useCreateProduct()
 
   const formik = useFormik({
     initialValues: {
-      productName: '',
-      productPrice: 0,
-      productDescription: '',
-      productImage: '',
+      name: '',
+      price: 0,
+      description: '',
+      image: '',
     },
     onSubmit: async (values, { setSubmitting }) => {
-      const { productName, productPrice, productDescription, productImage } = values
 
-      try {
+      setSubmitting(true)
+      createProduct(values)
 
-        await axiosInstance.post('/products', {
-          name: productName,
-          price: productPrice,
-          description: productDescription,
-          image: productImage
-        })
+      formik.resetForm()
+      toaster.create({
+        title: "Success",
+        description: "Product created successfully",
+        type: "success",
+      })
 
-        // reset form
-        formik.resetForm()
-        toaster.create({
-          title: "Success",
-          description: "Product created successfully",
-          type: "success",
-        })
-
-      } catch (e) {
-        console.log(e)
-      }
-
+      setSubmitting(false)
+      await fetchProducts()
     },
+
+
+
   })
 
   const renderProducts = () => {
-    return product.data?.map((product, index) => (
+    return products?.map((product, index) => (
       <Table.Row key={`${product.id}`}>
         <Table.Cell>{index + 1}</Table.Cell>
         <Table.Cell>{product.name}</Table.Cell>
@@ -88,34 +82,34 @@ export default function Home() {
                 <Fieldset.Content>
                   <Field label="Product">
                     <Input
-                      name="productName"
+                      name="name"
                       onChange={formik.handleChange}
-                      value={formik.values.productName}
+                      value={formik.values.name}
                       type="text" />
                   </Field>
 
                   <Field label="Price">
                     <Input
-                      name="productPrice"
+                      name="price"
                       onChange={formik.handleChange}
-                      value={formik.values.productPrice}
+                      value={formik.values.price}
                       type="number" />
                   </Field>
 
                   <Field label="Description">
                     <Textarea
-                      name="productDescription"
+                      name="description"
                       onChange={formik.handleChange}
-                      value={formik.values.productDescription}
+                      value={formik.values.description}
                       type="text" rows={4}
                     />
                   </Field>
 
                   <Field label="Image">
                     <Input
-                      name="productImage"
+                      name="image"
                       onChange={formik.handleChange}
-                      value={formik.values.productImage}
+                      value={formik.values.image}
                       type="text"
                     />
                   </Field>
