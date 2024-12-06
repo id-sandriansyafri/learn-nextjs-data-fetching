@@ -9,10 +9,12 @@ import { useFormik } from "formik";
 import { toaster } from "@/components/ui/toaster"
 import { useCreateProduct } from "@/features/products/useCreateProduct";
 import { useGetProduct } from "@/features/products/useGetProduct";
+import { useDeleteProduct } from "@/features/products/useDeleteProduct";
 
 export default function Home() {
   const { data: products, fetchProducts, isLoading } = useGetProduct()
   const { createProduct } = useCreateProduct()
+  const { deleteProduct } = useDeleteProduct()
 
   const formik = useFormik({
     initialValues: {
@@ -41,6 +43,13 @@ export default function Home() {
 
   })
 
+  const isDeleteProduct = (productId) => {
+    if (confirm('Delete product ?')) {
+      deleteProduct(productId)
+      fetchProducts()
+    }
+  }
+
   const renderProducts = () => {
     return products?.map((product, index) => (
       <Table.Row key={`${product.id}`}>
@@ -49,6 +58,12 @@ export default function Home() {
         <Table.Cell>{product.price}</Table.Cell>
         <Table.Cell>{product.description}</Table.Cell>
         <Table.Cell>{product.image}</Table.Cell>
+        <Table.Cell>
+          <Button onClick={() => isDeleteProduct(product.id)} colorPalette="red">
+            Delete {product.id}
+          </Button>
+        </Table.Cell>
+
       </Table.Row>
     ))
   }
@@ -65,6 +80,7 @@ export default function Home() {
               <Table.ColumnHeader>Price</Table.ColumnHeader>
               <Table.ColumnHeader>Desc</Table.ColumnHeader>
               <Table.ColumnHeader>Image</Table.ColumnHeader>
+              <Table.ColumnHeader>Action</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
