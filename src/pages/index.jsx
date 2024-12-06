@@ -1,14 +1,14 @@
+"use client"
+
 import LoadingTabelContent from "@/components/loading-tabel-content";
 import { useGetProduct } from "@/features/product/useProduct";
-import { Box, Container, Flex, Heading, NativeSelectField, NativeSelectRoot, Table, Textarea } from "@chakra-ui/react"
+import { Container, Heading, Table, Textarea, useToast } from "@chakra-ui/react"
 import { Button, Fieldset, Input, Stack } from "@chakra-ui/react"
 import { Field } from "@/components/ui/field"
 import { Card } from "@chakra-ui/react"
 import { useFormik } from "formik";
-
-
-
-
+import { axiosInstance } from "@/config/libs/axios";
+import { toaster } from "@/components/ui/toaster"
 
 export default function Home() {
   const { data: product, isLoading } = useGetProduct()
@@ -16,19 +16,36 @@ export default function Home() {
   const formik = useFormik({
     initialValues: {
       productName: '',
-      productPrice: '',
+      productPrice: 0,
       productDescription: '',
       productImage: '',
     },
-    onSubmit: (values, { setSubmitting }) => {
-      console.log(values)
-      setSubmitting(false)
+    onSubmit: async (values, { setSubmitting }) => {
+      const { productName, productPrice, productDescription, productImage } = values
+
+      try {
+
+        await axiosInstance.post('/products', {
+          name: productName,
+          price: productPrice,
+          description: productDescription,
+          image: productImage
+        })
+
+        // reset form
+        formik.resetForm()
+        toaster.create({
+          title: "Success",
+          description: "Product created successfully",
+          type: "success",
+        })
+
+      } catch (e) {
+        console.log(e)
+      }
+
     },
   })
-
-  const handleFormInput = (e) => {
-    formik.setFieldValue(e.target.name, e.target.value)
-  }
 
   const renderProducts = () => {
     return product.data?.map((product, index) => (
@@ -70,19 +87,37 @@ export default function Home() {
 
                 <Fieldset.Content>
                   <Field label="Product">
-                    <Input name="productName" value={formik.values.productName} onChange={handleFormInput} type="text" />
+                    <Input
+                      name="productName"
+                      onChange={formik.handleChange}
+                      value={formik.values.productName}
+                      type="text" />
                   </Field>
 
                   <Field label="Price">
-                    <Input name="productPrice" value={formik.values.productPrice} onChange={handleFormInput} type="number" />
+                    <Input
+                      name="productPrice"
+                      onChange={formik.handleChange}
+                      value={formik.values.productPrice}
+                      type="number" />
                   </Field>
 
                   <Field label="Description">
-                    <Textarea name="productDescription" value={formik.values.productDescription} onChange={handleFormInput} type="text" rows={4} />
+                    <Textarea
+                      name="productDescription"
+                      onChange={formik.handleChange}
+                      value={formik.values.productDescription}
+                      type="text" rows={4}
+                    />
                   </Field>
 
                   <Field label="Image">
-                    <Input name="productImage" onChange={formik.values.productImage} type="text" />
+                    <Input
+                      name="productImage"
+                      onChange={formik.handleChange}
+                      value={formik.values.productImage}
+                      type="text"
+                    />
                   </Field>
 
                   <Button type="submit" disabled={formik.isSubmitting} alignSelf="flex-start">
