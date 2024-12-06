@@ -4,6 +4,7 @@ import { Box, Container, Flex, Heading, NativeSelectField, NativeSelectRoot, Tab
 import { Button, Fieldset, Input, Stack } from "@chakra-ui/react"
 import { Field } from "@/components/ui/field"
 import { Card } from "@chakra-ui/react"
+import { useFormik } from "formik";
 
 
 
@@ -11,6 +12,23 @@ import { Card } from "@chakra-ui/react"
 
 export default function Home() {
   const { data: product, isLoading } = useGetProduct()
+
+  const formik = useFormik({
+    initialValues: {
+      productName: '',
+      productPrice: '',
+      productDescription: '',
+      productImage: '',
+    },
+    onSubmit: (values, { setSubmitting }) => {
+      console.log(values)
+      setSubmitting(false)
+    },
+  })
+
+  const handleFormInput = (e) => {
+    formik.setFieldValue(e.target.name, e.target.value)
+  }
 
   const renderProducts = () => {
     return product.data?.map((product, index) => (
@@ -47,31 +65,31 @@ export default function Home() {
         <Card.Root>
           <Card.Body>
             <Heading mb={4}>Create Product</Heading>
-            <form action="">
+            <form onSubmit={formik.handleSubmit}>
               <Fieldset.Root>
 
                 <Fieldset.Content>
                   <Field label="Product">
-                    <Input name="product" type="text" />
+                    <Input name="productName" value={formik.values.productName} onChange={handleFormInput} type="text" />
                   </Field>
 
                   <Field label="Price">
-                    <Input name="price" type="number" />
+                    <Input name="productPrice" value={formik.values.productPrice} onChange={handleFormInput} type="number" />
                   </Field>
 
                   <Field label="Description">
-                    <Textarea name="description" type="text" rows={4} />
+                    <Textarea name="productDescription" value={formik.values.productDescription} onChange={handleFormInput} type="text" rows={4} />
                   </Field>
 
                   <Field label="Image">
-                    <Input name="image" type="text" />
+                    <Input name="productImage" onChange={formik.values.productImage} type="text" />
                   </Field>
 
-                  <Button type="submit" alignSelf="flex-start">
+                  <Button type="submit" disabled={formik.isSubmitting} alignSelf="flex-start">
                     Submit
                   </Button>
                 </Fieldset.Content>
-                
+
               </Fieldset.Root>
             </form>
           </Card.Body>
